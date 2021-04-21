@@ -87,3 +87,78 @@ const startPrompts = () => {
             }
         });
 };
+
+//needs to console.table of all employees
+const viewAllEmployees = () => {
+    const query = 
+      'SELECT * FROM '
+    console.table
+};
+
+const viewByDepartment = () => {
+    const query =
+      ''
+    console.table  
+};
+
+const viewByManager = () => {
+    const query =
+      ''
+    console.table  
+};
+
+const addEmployee = () => {
+    const query =
+      ''
+    console.table  
+};
+const removeEmployee = () => {
+    const query =
+      ''
+    console.table  
+};
+const updateRole = () => {
+    const query =
+      ''
+    console.table  
+};
+const updateManager = () => {
+    const query =
+      ''
+    console.table  
+};
+const viewAllRoles = () => {
+    const query =
+      ''
+    console.table  
+};
+const addRole = () => {
+    const query =
+      ''
+    console.table  
+};
+const removeRole = () => {
+    const query =
+      ''
+    console.table  
+};
+const viewAllDepartments = () => {
+    const query =
+      ''
+    console.table  
+};
+const addDepartment = () => {
+    const query =
+      ''
+    console.table  
+};
+const removeDepartment = () => {
+    const query =
+      ''
+    console.table  
+};
+const quit = () => {
+    const query =
+      ''
+    console.table  
+};

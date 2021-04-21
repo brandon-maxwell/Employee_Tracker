@@ -12,7 +12,7 @@ CREATE TABLE department (
 CREATE TABLE role (
   id INT NOT NULL,
   title VARCHAR(30) NULL,
-  raw_total DECIMAL(8,2) NULL,
+  salary DECIMAL(8,2) NULL,
   --needs to reference dept role for dept id
   department_id INT NOT NULL,
   PRIMARY KEY (id)
@@ -25,7 +25,7 @@ CREATE TABLE employee (
   --needs to reference role employee has
   role_id INT NULL,
   --needs to reference manager of employee - if none null
-  manager_id INT NULL
+  manager_id INT NULL,
   PRIMARY KEY (id)
 );
 
