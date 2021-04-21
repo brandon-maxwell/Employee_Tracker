@@ -91,11 +91,36 @@ const startPrompts = () => {
 //needs to console.table of all employees
 const viewAllEmployees = () => {
     const query = 
-      'SELECT * FROM '
+    `SELECT employee.id, employee.first_name, employee.last_name, 
+    role.title, department.name, role.salary, employee.manager_id
+    FROM employee 
+    INNER JOIN role 
+    ON employee.role_id = role.id 
+    INNER JOIN department
+    ON role.department_id = department.id
+    ORDER BY employee.id, employee.last_name`
     console.table
 };
 
 const viewByDepartment = () => {
+    inquirer
+        .prompt({
+            name: 'viewDepartment',
+            type: 'rawlist',
+            message: 'Which department?',
+            choices: [
+                
+            ],
+        })
+        .then((answer) => {
+            switch (answer.action) {
+                case 'placeHolder':
+                    placeHolder();
+                    break;
+
+                case 'placeHolder':
+                    placeHolder();
+                    break;
     const query =
       ''
     console.table  
@@ -158,7 +183,5 @@ const removeDepartment = () => {
     console.table  
 };
 const quit = () => {
-    const query =
-      ''
-    console.table  
+
 };
