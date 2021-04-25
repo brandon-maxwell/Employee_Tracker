@@ -1,13 +1,14 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql');
 const consoleTable = require('console.table');
+require ('dotenv').config();
 
 const connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
-    user: 'root',
-    password: 'Milo0322',
-    database: 'employee_DB',
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
 });
 
 connection.connect((err) => {
@@ -24,18 +25,18 @@ const startPrompts = () => {
             choices: [
                 'View All Employees',
                 'View All Employees by Department',
-                // 'View All Employees by Manager',
-                'Add Employee',
-                // 'Remove Employee',
-                'Update Employee Role',
-                // 'Update Employee Manager',
                 'View All Roles',
-                'Add Role',
-                // 'Remove Role',
                 'View All Departments',
                 'Add Department',
-                // 'Remove Department',
+                'Add Employee (not currently working)',
+                'Add Role (not currently working)',
+                'Update Employee Role (not currently working)',
                 'Quit'
+                // 'View All Employees by Manager',
+                // 'Update Employee Manager',
+                // 'Remove Employee',
+                // 'Remove Role',
+                // 'Remove Department',
             ],
         })
         .then((answer) => {
@@ -126,7 +127,6 @@ const viewByDepartment = async () => {
         let choiceArray = [];
         for (var i = 0; i < res.length; i++) {
             choiceArray.push(res[i].name);
-            console.log(choiceArray)
         }
 
         inquirer
@@ -204,29 +204,31 @@ const addEmployee = async () => {
             {
                 name: 'role',
                 type: 'list',
-                message: "Enter new employee's role:",
-                choices: //Need to determine how to put sql info into array for this
-                    [
-
-                    ],
+                message: "Enter new employee's role ID (see role table for reference):",
+                choices: roleChoices(),
             },
-            {
-                name: 'manager',
-                type: 'list',
-                message: "Enter new employee's manager:",
-                choices: //Need to determine how to put sql info into array for this
-                    [
-
-                    ],
-            }
+            // {
+            //     name: 'manager',
+            //     type: 'list',
+            //     message: "Enter new employee manager's employee ID (see employee table for reference):",
+            //     choices: managerChoices(),
+            // }
         ])
         .then((answer) => {
-            const query =
-                `INSERT INTO employee (first_name, last_name, role_id, manager_id)
-            VALUES (?)`
-
-            console.log('Employee Added!')
-
+            const query = 'INSERT INTO employee (first_name, last_name, role_id) VALUES ?';
+            connection.query(
+                query,
+                {
+                    first_name: answer.firstName,
+                    last_name: answer.lastName,
+                    role_id: answer.role,
+                },
+                (err, res) => {
+                    if (err) throw err;
+                    console.log('Employee Added!')
+                    startPrompts();        
+                }
+            )
         });
 };
 
@@ -266,7 +268,13 @@ const viewAllRoles = () => {
 }
 
 const addRole = () => {
-    return new Promise((resolve, reject) => {
+    connection.query("SELECT id FROM department", (err, res) => {
+        if (err) throw err;
+        let addRoleArray = [];
+        for (var i = 0; i < res.length; i++) {
+            addRoleArray.push(res[i].id);
+        }
+
         inquirer
             .prompt([
                 {
@@ -276,16 +284,13 @@ const addRole = () => {
                 },
                 {
                     name: 'salary',
-                    type: 'input',
+                    type: 'number',
                     message: 'Enter salary of the new role:'
                 },
                 {
                     name: 'department_id',
-                    type: 'input',
-                    message: 'Enter department of new role:',
-                    choices: [
-
-                    ]
+                    type: 'number',
+                    message: 'Enter department ID of new role:',
                 },
             ])
             .then((answer) => {
@@ -294,8 +299,7 @@ const addRole = () => {
 
                 connection.query(query, (err, res) => {
                     if (err) throw err;
-                    const confirmation = console.log(`\n New role was added`)
-                    resolve(confirmation)
+                    console.log(`\n New role was added`)
                     startPrompts();
                 })
             })
@@ -358,79 +362,25 @@ const quit = () => {
     console.log(`\n Exited Employee Tracker`)
     connection.end()
 };
-
-const viewEngineer = () => {
-    const query =
-        `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id
-    FROM employee 
-    INNER JOIN role 
-    ON employee.role_id = role.id 
-    INNER JOIN department
-    ON role.department_id = department.id
-    WHERE department.name = 'Engineer'
-    ORDER BY employee.id, employee.last_name`;
-
-    connection.query(query, (err, res) => {
+ 
+const roleChoices = ()=> {
+    let roleChoiceArray = [];
+    connection.query("SELECT * FROM role", (err, res) => {
         if (err) throw err;
-        console.log(`\n`);
-        console.table(res);
-        startPrompts();
+        for (var i = 0; i < res.length; i++) {
+            roleChoiceArray.push(res[i].id);
+        }
     })
+    return roleChoiceArray;
 };
 
-const viewFinance = () => {
-    const query =
-        `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id
-    FROM employee 
-    INNER JOIN role 
-    ON employee.role_id = role.id 
-    INNER JOIN department
-    ON role.department_id = department.id
-    WHERE department.name = 'Finance'
-    ORDER BY employee.id, employee.last_name`;
-
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.log(`\n`);
-        console.table(res);
-        startPrompts();
-    })
-};
-
-const viewSales = () => {
-    const query =
-        `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id
-    FROM employee 
-    INNER JOIN role 
-    ON employee.role_id = role.id 
-    INNER JOIN department
-    ON role.department_id = department.id
-    WHERE department.name = 'Sales'
-    ORDER BY employee.id, employee.last_name`;
-
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.log(`\n`);
-        console.table(res);
-        startPrompts();
-    })
-};
-
-const viewLegal = () => {
-    const query =
-        `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id
-    FROM employee 
-    INNER JOIN role 
-    ON employee.role_id = role.id 
-    INNER JOIN department
-    ON role.department_id = department.id
-    WHERE department.name = 'Legal'
-    ORDER BY employee.id, employee.last_name`;
-
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.log(`\n`);
-        console.table(res);
-        startPrompts();
-    })
-};
+// const managerChoices = ()=> {
+//     let managerChoiceArray = [];
+//     connection.query("SELECT * FROM employee", (err, res) => {
+//         if (err) throw err;
+//         for (var i = 0; i < res.length; i++) {
+//             managerChoiceArray.push(res[i].id);
+//         }
+//     })
+//     return managerChoiceArray;
+// };
