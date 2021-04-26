@@ -28,9 +28,9 @@ const startPrompts = () => {
                 'View All Roles',
                 'View All Departments',
                 'Add Department',
-                'Add Employee (not currently working)',
-                'Add Role (not currently working)',
-                'Update Employee Role (not currently working)',
+                'Add Employee',
+                'Add Role',
+                'Update Employee Role',
                 'Quit'
                 // 'View All Employees by Manager',
                 // 'Update Employee Manager',
@@ -207,12 +207,12 @@ const addEmployee = async () => {
                 message: "Enter new employee's role ID (see role table for reference):",
                 choices: roleChoices(),
             },
-            // {
-            //     name: 'manager',
-            //     type: 'list',
-            //     message: "Enter new employee manager's employee ID (see employee table for reference):",
-            //     choices: managerChoices(),
-            // }
+            {
+                name: 'manager',
+                type: 'list',
+                message: "Enter new employee manager's employee ID (see employee table for reference):",
+                choices: managerChoices(),
+            }
         ])
         .then((answer) => {
             const query = 'INSERT INTO employee (first_name, last_name, role_id) VALUES ?';
