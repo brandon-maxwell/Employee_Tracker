@@ -3,6 +3,10 @@ const mysql = require('mysql');
 const consoleTable = require('console.table');
 require ('dotenv').config();
 
+let roleChoiceArray = [];
+let managerChoiceArray = [];
+let deptChoiceArray = [];
+
 const connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
@@ -189,6 +193,10 @@ const viewByManager = () => {
 */
 
 const addEmployee = async () => {
+    const rolesArray = await roleChoices();
+    const roleChoicesTitle = rolesArray.map(r => r.title);
+    const managersArray = await managerChoices();
+    const managerChoicesName = managersArray.map(m => m.first_name);
     inquirer
         .prompt([
             {
@@ -204,24 +212,25 @@ const addEmployee = async () => {
             {
                 name: 'role',
                 type: 'list',
-                message: "Enter new employee's role ID (see role table for reference):",
-                choices: roleChoices(),
+                message: "Enter new employee's role:",
+                choices: roleChoicesTitle,
             },
             {
                 name: 'manager',
                 type: 'list',
-                message: "Enter new employee manager's employee ID (see employee table for reference):",
-                choices: managerChoices(),
+                message: "Enter new employee manager's name:",
+                choices: managerChoicesName,
             }
         ])
         .then((answer) => {
-            const query = 'INSERT INTO employee (first_name, last_name, role_id) VALUES ?';
+            const query = 'INSERT INTO employee SET ?';
             connection.query(
                 query,
                 {
                     first_name: answer.firstName,
                     last_name: answer.lastName,
-                    role_id: answer.role,
+                    role_id: roleChoiceArray.find(r => r.title == answer.role).id,
+                    manager_id: managerChoiceArray.find(m => m.first_name == answer.manager).id,
                 },
                 (err, res) => {
                     if (err) throw err;
@@ -267,13 +276,9 @@ const viewAllRoles = () => {
     });
 }
 
-const addRole = () => {
-    connection.query("SELECT id FROM department", (err, res) => {
-        if (err) throw err;
-        let addRoleArray = [];
-        for (var i = 0; i < res.length; i++) {
-            addRoleArray.push(res[i].id);
-        }
+const addRole = async () => {
+    const deptArray = await deptChoices();
+    const deptChoiceName = deptArray.map(d => d.name);
 
         inquirer
             .prompt([
@@ -289,21 +294,29 @@ const addRole = () => {
                 },
                 {
                     name: 'department_id',
-                    type: 'number',
-                    message: 'Enter department ID of new role:',
+                    type: 'list',
+                    message: 'Enter department of new role:',
+                    choices: deptChoiceName,
                 },
             ])
             .then((answer) => {
                 const query =
-                    `INSERT INTO role (title, salary, department_id) VALUES ('${answer.title}', '${answer.salary}', '${answer.department_id}')`;
+                    'INSERT INTO role SET ?';
 
-                connection.query(query, (err, res) => {
+                connection.query(
+                    query, 
+                    {
+                        title: answer.title,
+                        salary: answer.salary,
+                        department_id: deptChoiceArray.find(d => d.name == answer.department_id).id,   
+                    },                    
+                    (err, res) => {
                     if (err) throw err;
-                    console.log(`\n New role was added`)
+                    console.log(`\n New role was added \n`)
                     startPrompts();
                 })
             })
-    })
+    
 };
 
 /*
@@ -342,7 +355,7 @@ const addDepartment = () => {
 
                 connection.query(query, (err, res) => {
                     if (err) throw err;
-                    const confirmation = console.log(`\n New department was added`)
+                    const confirmation = console.log(`\n New department was added \n`)
                     resolve(confirmation)
                     startPrompts();
                 })
@@ -363,24 +376,44 @@ const quit = () => {
     connection.end()
 };
  
-const roleChoices = ()=> {
-    let roleChoiceArray = [];
+const roleChoices = async ()=> {
+    return new Promise((resolve,reject) => {
+
+    roleChoiceArray = [];
     connection.query("SELECT * FROM role", (err, res) => {
-        if (err) throw err;
+        if (err) reject(err);
         for (var i = 0; i < res.length; i++) {
-            roleChoiceArray.push(res[i].id);
+            roleChoiceArray.push(res[i]);
         }
+        resolve(roleChoiceArray);
     })
-    return roleChoiceArray;
+})
 };
 
-// const managerChoices = ()=> {
-//     let managerChoiceArray = [];
-//     connection.query("SELECT * FROM employee", (err, res) => {
-//         if (err) throw err;
-//         for (var i = 0; i < res.length; i++) {
-//             managerChoiceArray.push(res[i].id);
-//         }
-//     })
-//     return managerChoiceArray;
-// };
+const managerChoices = async ()=> {
+    return new Promise((resolve,reject) => {
+
+    managerChoiceArray = [];
+    connection.query("SELECT * FROM employee", (err, res) => {
+        if (err) reject (err);
+        for (var i = 0; i < res.length; i++) {
+            managerChoiceArray.push(res[i]);
+        }
+        resolve (managerChoiceArray);
+    })
+})
+};
+
+const deptChoices = async ()=> {
+    return new Promise((resolve,reject) => {
+
+    deptChoiceArray = [];
+    connection.query("SELECT * FROM department", (err, res) => {
+        if (err) reject(err);
+        for (var i = 0; i < res.length; i++) {
+            deptChoiceArray.push(res[i]);
+        }
+        resolve(deptChoiceArray);
+    })
+})
+};
