@@ -249,10 +249,46 @@ const removeEmployee = () => {
 };
 */
 
-const updateRole = () => {
-    const query =
-        ''
-    console.table
+const updateRole = async () => {
+    const rolesArray = await roleChoices();
+    const roleChoicesTitle = rolesArray.map(r => r.title);
+    const employeeArray = await employeeChoices();
+    const employeeChoicesName = employeeArray.map(e => e.first_name);
+
+    inquirer
+        .prompt([
+            {
+                name: 'getEmployee',
+                type: 'list',
+                message: 'Which employee role do you want to update?',
+                choices: employeeChoicesName,
+            },
+            {
+                name: 'updatedRole',
+                type: 'list',
+                message: 'What is their new role?',
+                choices: roleChoicesTitle,
+            }
+        ])
+        .then((answer) => {
+            const query = 'UPDATE employee SET ? WHERE ?';
+            connection.query(
+                query,[
+                {
+                 role_id: roleChoiceArray.find(r => r.title == answer.updatedRole).id,   
+                },
+                {
+                 id: employeeChoiceArray.find(e => e.first_name == answer.getEmployee).id,   
+                }],
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(`\n Role Updated! \n`)
+                    startPrompts();        
+                }
+            )
+        });
+    
+        
 };
 
 /*
@@ -414,6 +450,20 @@ const deptChoices = async ()=> {
             deptChoiceArray.push(res[i]);
         }
         resolve(deptChoiceArray);
+    })
+})
+};
+
+const employeeChoices = async ()=> {
+    return new Promise((resolve,reject) => {
+
+    employeeChoiceArray = [];
+    connection.query("SELECT * FROM employee", (err, res) => {
+        if (err) reject (err);
+        for (var i = 0; i < res.length; i++) {
+            employeeChoiceArray.push(res[i]);
+        }
+        resolve (employeeChoiceArray);
     })
 })
 };
