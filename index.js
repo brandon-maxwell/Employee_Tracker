@@ -20,6 +20,62 @@ connection.connect((err) => {
     startPrompts();
 });
 
+const roleChoices = async ()=> {
+    return new Promise((resolve,reject) => {
+
+    roleChoiceArray = [];
+    connection.query("SELECT * FROM role", (err, res) => {
+        if (err) reject(err);
+        for (var i = 0; i < res.length; i++) {
+            roleChoiceArray.push(res[i]);
+        }
+        resolve(roleChoiceArray);
+    })
+})
+};
+
+const managerChoices = async ()=> {
+    return new Promise((resolve,reject) => {
+
+    managerChoiceArray = [];
+    connection.query("SELECT * FROM employee", (err, res) => {
+        if (err) reject (err);
+        for (var i = 0; i < res.length; i++) {
+            managerChoiceArray.push(res[i]);
+        }
+        resolve (managerChoiceArray);
+    })
+})
+};
+
+const deptChoices = async ()=> {
+    return new Promise((resolve,reject) => {
+
+    deptChoiceArray = [];
+    connection.query("SELECT * FROM department", (err, res) => {
+        if (err) reject(err);
+        for (var i = 0; i < res.length; i++) {
+            deptChoiceArray.push(res[i]);
+        }
+        resolve(deptChoiceArray);
+    })
+})
+};
+
+const employeeChoices = async ()=> {
+    return new Promise((resolve,reject) => {
+
+    employeeChoiceArray = [];
+    connection.query("SELECT * FROM employee", (err, res) => {
+        if (err) reject (err);
+        for (var i = 0; i < res.length; i++) {
+            employeeChoiceArray.push(res[i]);
+        }
+        resolve (employeeChoiceArray);
+    })
+})
+};
+
 const startPrompts = () => {
     inquirer
         .prompt({
@@ -29,13 +85,18 @@ const startPrompts = () => {
             choices: [
                 'View All Employees',
                 'View All Employees by Department',
-                'View All Roles',
                 'View All Departments',
+                'View All Roles',
+                'Add Role',
                 'Add Department',
                 'Add Employee',
-                'Add Role',
                 'Update Employee Role',
                 'Quit'
+                                
+                // ---------------------------------------
+                // additional functionality to add at a later date
+                // ---------------------------------------
+
                 // 'View All Employees by Manager',
                 // 'Update Employee Manager',
                 // 'Remove Employee',
@@ -53,27 +114,14 @@ const startPrompts = () => {
                     viewByDepartment();
                     break;
 
-                /*
-                case 'View All Employees by Manager':
-                    viewByManager();
-                    break;
-                */
                 case 'Add Employee':
                     addEmployee();
                     break;
-                /*
-                case 'Remove Employee':
-                    removeEmployee();
-                    break;
-                */
+
                 case 'Update Employee Role':
                     updateRole();
                     break;
-                /*
-                case 'Update Employee Manager':
-                    updateManager();
-                    break;
-                */
+
                 case 'View All Roles':
                     viewAllRoles();
                     break;
@@ -81,11 +129,7 @@ const startPrompts = () => {
                 case 'Add Role':
                     addRole();
                     break;
-                /*
-                case 'Remove Role':
-                    removeRole();
-                    break;
-                */
+
                 case 'View All Departments':
                     viewAllDepartments();
                     break;
@@ -93,14 +137,45 @@ const startPrompts = () => {
                 case 'Add Department':
                     addDepartment();
                     break;
+
+                case 'Quit':
+                    quit();
+                    break;
+
+                // ---------------------------------------
+                // additional functionality to add at a later date
+                // ---------------------------------------
+                /*
+                case 'View All Employees by Manager':
+                    viewByManager();
+                    break;
+                */
+                
+                /*
+                case 'Remove Employee':
+                    removeEmployee();
+                    break;
+                */
+
+                /*
+                case 'Update Employee Manager':
+                    updateManager();
+                    break;
+                */
+
+                /*
+                case 'Remove Role':
+                    removeRole();
+                    break;
+                */
+
                 /*
                 case 'Remove Department':
                     removeDepartment();
                     break;
                 */
-                case 'Quit':
-                    quit();
-                    break;
+
+
             }
         });
 };
@@ -158,40 +233,6 @@ const viewByDepartment = async () => {
     });
 };
 
-/*
-const viewByManager = () => {
-    inquirer
-        .prompt({
-            name: 'viewByManager',
-            type: 'rawlist',
-            message: 'Which manager?',
-            choices: [
-
-            ],
-        })
-        .then((answer) => {
-            switch (answer.viewByManager) {
-                case 'Engineer':
-                    viewEngineer();
-                    break;
-
-                case 'Finance':
-                    viewFinance();
-                    break;
-
-                case 'Sales':
-                    viewSales();
-                    break;
-
-                case 'Legal':
-                    viewLegal();
-                    break;
-            }
-        });
-
-};
-*/
-
 const addEmployee = async () => {
     const rolesArray = await roleChoices();
     const roleChoicesTitle = rolesArray.map(r => r.title);
@@ -241,13 +282,6 @@ const addEmployee = async () => {
         });
 };
 
-/*
-const removeEmployee = () => {
-    const query =
-        ''
-    console.table
-};
-*/
 
 const updateRole = async () => {
     const rolesArray = await roleChoices();
@@ -287,17 +321,7 @@ const updateRole = async () => {
                 }
             )
         });
-    
-        
-};
-
-/*
-const updateManager = () => {
-    const query =
-        ''
-    console.table
-};
-*/
+    };
 
 const viewAllRoles = () => {
     const query =
@@ -355,14 +379,6 @@ const addRole = async () => {
     
 };
 
-/*
-const removeRole = () => {
-    const query =
-        ''
-    console.table
-};
-*/
-
 const viewAllDepartments = () => {
     const query =
         `SELECT * FROM department`;
@@ -399,6 +415,54 @@ const addDepartment = () => {
     })
 };
 
+const quit = () => {
+    console.log(`\n Exited Employee Tracker`)
+    connection.end()
+};
+
+// ---------------------------------------
+// additional functionality to add at a later date
+// ---------------------------------------
+
+/*
+const removeEmployee = () => {
+};
+*/
+
+/*
+const viewByManager = () => {
+    inquirer
+        .prompt({
+            name: 'viewByManager',
+            type: 'rawlist',
+            message: 'Which manager?',
+            choices: [
+
+            ],
+        })
+        .then((answer) => {
+            }
+        });
+
+};
+*/
+
+/*
+const updateManager = () => {
+    const query =
+        ''
+    console.table
+};
+*/
+
+/*
+const removeRole = () => {
+    const query =
+        ''
+    console.table
+};
+*/
+
 /*
 const removeDepartment = () => {
     const query =
@@ -406,64 +470,3 @@ const removeDepartment = () => {
     console.table
 };
 */
-
-const quit = () => {
-    console.log(`\n Exited Employee Tracker`)
-    connection.end()
-};
- 
-const roleChoices = async ()=> {
-    return new Promise((resolve,reject) => {
-
-    roleChoiceArray = [];
-    connection.query("SELECT * FROM role", (err, res) => {
-        if (err) reject(err);
-        for (var i = 0; i < res.length; i++) {
-            roleChoiceArray.push(res[i]);
-        }
-        resolve(roleChoiceArray);
-    })
-})
-};
-
-const managerChoices = async ()=> {
-    return new Promise((resolve,reject) => {
-
-    managerChoiceArray = [];
-    connection.query("SELECT * FROM employee", (err, res) => {
-        if (err) reject (err);
-        for (var i = 0; i < res.length; i++) {
-            managerChoiceArray.push(res[i]);
-        }
-        resolve (managerChoiceArray);
-    })
-})
-};
-
-const deptChoices = async ()=> {
-    return new Promise((resolve,reject) => {
-
-    deptChoiceArray = [];
-    connection.query("SELECT * FROM department", (err, res) => {
-        if (err) reject(err);
-        for (var i = 0; i < res.length; i++) {
-            deptChoiceArray.push(res[i]);
-        }
-        resolve(deptChoiceArray);
-    })
-})
-};
-
-const employeeChoices = async ()=> {
-    return new Promise((resolve,reject) => {
-
-    employeeChoiceArray = [];
-    connection.query("SELECT * FROM employee", (err, res) => {
-        if (err) reject (err);
-        for (var i = 0; i < res.length; i++) {
-            employeeChoiceArray.push(res[i]);
-        }
-        resolve (employeeChoiceArray);
-    })
-})
-};

@@ -8,7 +8,7 @@ This project uses MySQL, Node.js, and commandline to access/navigate/and alter t
 ![preview screenshot](assets/images/Screenshot.png)
 
 ## Tutorial
-[Click here to view a tutorial video on how to use the Employee Tracker](https:)
+[Click here to view a tutorial video on how to use the Employee Tracker](https://youtu.be/r0Ht_f2GLYE)
 
 
 ## Table of Contents
