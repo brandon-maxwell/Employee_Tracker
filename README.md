@@ -27,8 +27,6 @@ npm i
 ## Usage
 To start run 'npm start' 
 
-Please Note: At this time, the "Add Employee", "Add Role", and "Update Employee Role" prompts are currently not working properly.
-
 ## License 
 This project is licensed under the [The Unlicense](http://unlicense.org/) license.
 
